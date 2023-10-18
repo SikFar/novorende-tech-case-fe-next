@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { searchObject } from "@/util/search-object";
+import { FormEvent, useEffect, useState } from "react";
+import { searchObject } from "@/service/search-object";
 import { View } from "@novorender/api";
 import { SceneData, SceneLoadFail } from "@novorender/data-js-api";
 
@@ -11,19 +11,36 @@ interface SearchFormProporties {
 
 const SearchForm = (props: SearchFormProporties) => {
 	const [searchObjectInput, setSearchObjectInput] = useState('');
-	const [submitButtonText, setSubmitButtonText] = useState('Submit');
-	const handleChange = (event) => {
-		setSearchObjectInput(event.target.value);
-	}
+	const [submitButtonText, setSubmitButtonText] = useState('Search');
+	const [searching, setSearching] = useState(false);
+
+	useEffect(() => {
+		const timeOutId = setTimeout(() => {
+			if (enableDynamicSearch) {
+				handleSearchRequest();
+			}
+
+		}, 500);
+		return () => clearTimeout(timeOutId);
+
+	}, [searchObjectInput]);
+
+	useEffect(() => {
+		if (searching) {
+			setSubmitButtonText('Searching...');
+		} else {
+			setSubmitButtonText('Search');
+		}
+	}, [searching]);
 
 	const [abortController, setAbortController] = useState<AbortController>(new AbortController());
 
-	const handleSubmit = (event) => {
-		setSubmitButtonText('Searching...');
+	const [enableDynamicSearch, setEnableDynamicSearch] = useState(false);
 
-		if (submitButtonText === 'Searching...') {
+	function handleSearchRequest() {
+		setSearching(true)
+		if (searching) {
 			abortController.abort()
-			alert('Aborted search for ' + searchObjectInput)
 		}
 
 		if (abortController.signal.aborted) {
@@ -32,8 +49,12 @@ const SearchForm = (props: SearchFormProporties) => {
 
 		searchObject(searchObjectInput, props.viewToSearch!, props.sceneData as SceneData, abortController.signal)
 			.finally(() => {
-				setSubmitButtonText('Submit');
+				setSearching(false)
 			})
+	}
+
+	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+		handleSearchRequest();
 		event.preventDefault();
 	}
 	return (
@@ -43,9 +64,20 @@ const SearchForm = (props: SearchFormProporties) => {
 			<input type="text"
 			       placeholder='Search object'
 			       value={searchObjectInput}
-			       onChange={handleChange}/>
-			<input type="submit"
-			       value={submitButtonText}/>
+			       onChange={e => setSearchObjectInput(e.target.value)}/>
+			{!enableDynamicSearch && <input type="submit"
+                                            value={submitButtonText}/>
+			}
+
+			<input type='checkbox'
+			       id='enableDynamicSearch'
+			       onChange={e => {
+				       setEnableDynamicSearch(e.target.checked)
+			       }}
+			       value={enableDynamicSearch ? 1 : 0}
+			/>
+			<label style={{color: 'white'}}
+			       htmlFor="enableDynamicSearch">Enable dynamic search</label>
 		</form>
 	)
 }
