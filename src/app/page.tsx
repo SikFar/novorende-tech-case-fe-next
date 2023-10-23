@@ -5,7 +5,7 @@ import { FlightController, View, } from "@novorender/api";
 import { type SceneData, SceneLoadFail } from "@novorender/data-js-api";
 import './page.css';
 import Panel from "@/ui/panel/panel";
-import { initializeCanvas } from "@/service/search-object";
+import { initializeCanvas } from "@/service/novorender.service";
 
 
 export default function Home() {

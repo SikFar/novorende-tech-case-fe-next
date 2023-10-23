@@ -8,7 +8,7 @@ import {
 } from "@novorender/api";
 import { createAPI, type SceneData, SceneLoadFail } from "@novorender/data-js-api";
 
-export const searchObject = async (query: string, view: View, sceneData: SceneData, signal: AbortSignal): Promise<void> => {
+export const novorenderService = async (query: string, view: View, sceneData: SceneData, signal: AbortSignal): Promise<void> => {
 	try {
 		const {db} = sceneData;
 		if (db) {

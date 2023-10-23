@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
-import { searchObject } from "@/service/search-object";
+import { novorenderService } from "@/service/novorender.service";
 import { View } from "@novorender/api";
 import { SceneData, SceneLoadFail } from "@novorender/data-js-api";
 
@@ -47,7 +47,7 @@ const SearchForm = (props: SearchFormProporties) => {
 			setAbortController(new AbortController());
 		}
 
-		searchObject(searchObjectInput, props.viewToSearch!, props.sceneData as SceneData, abortController.signal)
+		novorenderService(searchObjectInput, props.viewToSearch!, props.sceneData as SceneData, abortController.signal)
 			.finally(() => {
 				setSearching(false)
 			})
